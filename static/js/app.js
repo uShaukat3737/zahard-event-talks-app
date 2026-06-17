@@ -353,17 +353,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 const copyCardBtn = document.createElement('button');
                 copyCardBtn.className = 'btn-action btn-copy-card';
                 copyCardBtn.title = 'Copy update content to clipboard';
-                copyCardBtn.innerHTML = `
+                const originalHtml = `
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                     </svg>
                     <span>Copy</span>
                 `;
+                copyCardBtn.innerHTML = originalHtml;
                 copyCardBtn.addEventListener('click', async () => {
                     try {
                         await navigator.clipboard.writeText(item.content_text);
+                        
+                        // Change state to copied
+                        copyCardBtn.innerHTML = `
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span style="color: #10b981;">Copied!</span>
+                        `;
+                        copyCardBtn.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+                        copyCardBtn.style.background = 'rgba(16, 185, 129, 0.08)';
+                        
                         showToast('Update copied to clipboard');
+                        
+                        setTimeout(() => {
+                            copyCardBtn.innerHTML = originalHtml;
+                            copyCardBtn.style.borderColor = '';
+                            copyCardBtn.style.background = '';
+                        }, 2000);
                     } catch (err) {
                         console.error('Failed to copy card text: ', err);
                         showToast('Failed to copy');
@@ -769,6 +787,57 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.removeChild(link);
             
             showToast(`Exported ${filtered.length} updates to CSV`);
+        });
+    }
+
+    // Window global keyboard listener for Escape modal close & search blur
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && tweetModal.classList.contains('active')) {
+            closeTweetModal();
+        }
+        if (e.key === 'Escape' && document.activeElement === searchInput) {
+            searchInput.value = '';
+            searchQuery = '';
+            clearSearchBtn.style.display = 'none';
+            searchInput.blur();
+            renderFeed();
+        }
+    });
+
+    // Tweet editor submit shortcut (Cmd/Ctrl + Enter)
+    tweetTextarea.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+            e.preventDefault();
+            if (!tweetSubmitBtn.disabled) {
+                tweetSubmitBtn.click();
+            }
+        }
+    });
+
+    // Sidebar status card click trigger to refresh
+    const statusCard = document.querySelector('.status-card');
+    if (statusCard) {
+        statusCard.addEventListener('click', () => {
+            fetchReleases(true);
+        });
+    }
+
+    // Floating Back to Top Button Logic
+    const backToTopBtn = document.getElementById('back-to-top');
+    if (backToTopBtn) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
+        });
+
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
         });
     }
 
