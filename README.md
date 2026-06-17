@@ -46,13 +46,21 @@ graph TD
 ## Features
 
 1. **Category Counter & Filtering**: A responsive navigation deck displaying counts dynamically filtered by status (Features, Announcements, Issues, Breaking Changes, and General Changes).
-2. **Interactive Search Highlighting**: Pressing the `/` shortcut focuses the search box. Typing executes an instant search, dynamically highlighting matches in the release notes text while skipping tag syntax.
+2. **Interactive Search Highlighting**: Pressing the `/` shortcut focuses the search box. Typing executes an instant search, dynamically highlighting matches in the release notes text while skipping HTML markup syntax.
 3. **Advanced X (Twitter) Composer Modal**:
-   - **Multi-Style Templates**: Switch between **Standard**, **Excited (Hype)**, and **Minimal** formats at the click of a button.
+   - **Multi-Style Templates**: Switch between **Standard**, **Highlight**, and **Minimal** formats at the click of a button.
    - **X-Compliant Length Math**: Emulates Twitter's link formatting, capping all links to a static 23-character calculation to provide accurate remaining-character thresholds.
    - **Visual Character Progress Meter**: An SVG circular progress ring that dynamically fills and changes colors (Cyan/Blue -> Amber Warning -> Red Danger) as you approach the 280-character limit.
    - **Copy-to-Clipboard & Toast Alerts**: Direct integration using the Clipboard API with transient status changes and responsive notifications.
-4. **Shimmer Skeletal Loading**: Replaces generic spinners with animated gradients indicating structure while fetching updates.
+4. **Light and Dark Mode Toggle**: A header control that swaps the interface colors dynamically by overriding CSS root variables, persisting user settings via `localStorage`.
+5. **Dynamic CSV Export**: Generates a downloadable CSV file containing the active release notes view, matching the selected filter state and search query.
+6. **Micro-Interactions and Usability Improvements**:
+   - **Localized Copy Button**: Confirms active copies on cards by updating text to "Copied!" with a checkmark for 2 seconds.
+   - **Sticky Date Headers**: Pins dates to the top of the feed as cards scroll underneath.
+   - **Floating Back-to-Top**: A floating circle button that appears when scrolled past 300px, returning to the top smoothly.
+   - **Sidebar Cache Control**: Hovering over the sidebar cache indicator shows a pointer cursor, and clicking it fetches fresh data.
+   - **Accessible Focus Rings**: Uses outline highlights for focus-visible elements to help tab key navigation.
+7. **Shimmer Skeletal Loading**: Replaces generic spinners with animated gradients indicating structure while fetching updates.
 
 ---
 
