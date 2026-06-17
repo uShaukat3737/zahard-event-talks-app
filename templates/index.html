@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BigQuery Release Hub - Feed & Tweet Share</title>
+    <!-- Meta tags for SEO -->
+    <meta name="description" content="Explore the latest Google BigQuery Release Notes, filter by features, issues, and changes, and share updates directly on X (Twitter) with customizable drafts.">
+    <meta name="keywords" content="BigQuery, Google Cloud, Release Notes, Twitter, Share, Cloud Database, Data Warehouse">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- CSS Style Link -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- App Container -->
+    <div class="app-container">
+        
+        <!-- Navbar -->
+        <header class="app-header">
+            <div class="header-brand">
+                <div class="brand-logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                        <path d="M3 5V19A9 3 0 0 0 21 19V5"></path>
+                        <path d="M3 12A9 3 0 0 0 21 12"></path>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <h1>BigQuery</h1>
+                    <span class="sub-logo">Release Hub</span>
+                </div>
+            </div>
+
+            <!-- Global Search & Control -->
+            <div class="header-controls">
+                <div class="search-box-container">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="search-input" placeholder="Search release notes... (Press '/')" autocomplete="off">
+                    <span class="search-shortcut">/</span>
+                    <button id="clear-search-btn" class="clear-search-btn" title="Clear search" style="display: none;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                
+                <button id="refresh-btn" class="btn btn-primary btn-refresh" title="Refresh Release Notes">
+                    <svg id="refresh-spinner" class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                    </svg>
+                    <span>Refresh</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Layout -->
+        <main class="app-main">
+            
+            <!-- Left Sidebar for Stats & Quick Filters -->
+            <aside class="app-sidebar">
+                <!-- Status & Cache Info -->
+                <div class="sidebar-card status-card">
+                    <div class="status-indicator-wrapper">
+                        <span class="status-dot online"></span>
+                        <span class="status-text">Connected to GCP Feed</span>
+                    </div>
+                    <p class="cache-time-text" id="cache-time">Loading cache info...</p>
+                </div>
+
+                <!-- Category Filters -->
+                <div class="sidebar-card filter-card">
+                    <h3>Categories</h3>
+                    <div class="filter-list" id="category-filter-list">
+                        <button class="filter-item active" data-category="all">
+                            <span class="filter-label">All Updates</span>
+                            <span class="filter-count" id="count-all">0</span>
+                        </button>
+                        <button class="filter-item" data-category="Feature">
+                            <span class="filter-marker feat-marker"></span>
+                            <span class="filter-label">Features</span>
+                            <span class="filter-count" id="count-feature">0</span>
+                        </button>
+                        <button class="filter-item" data-category="Announcement">
+                            <span class="filter-marker ann-marker"></span>
+                            <span class="filter-label">Announcements</span>
+                            <span class="filter-count" id="count-announcement">0</span>
+                        </button>
+                        <button class="filter-item" data-category="Issue">
+                            <span class="filter-marker issue-marker"></span>
+                            <span class="filter-label">Issues</span>
+                            <span class="filter-count" id="count-issue">0</span>
+                        </button>
+                        <button class="filter-item" data-category="Breaking">
+                            <span class="filter-marker break-marker"></span>
+                            <span class="filter-label">Breaking Changes</span>
+                            <span class="filter-count" id="count-breaking">0</span>
+                        </button>
+                        <button class="filter-item" data-category="Change">
+                            <span class="filter-marker change-marker"></span>
+                            <span class="filter-label">General Changes</span>
+                            <span class="filter-count" id="count-change">0</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Info Card -->
+                <div class="sidebar-card info-card">
+                    <h3>Quick Share Tip</h3>
+                    <p>Select any update in the feed, click <strong>Share</strong> to compose a tweet, and post directly to X. The tool will auto-summarize and format the tweet for you!</p>
+                </div>
+            </aside>
+
+            <!-- Right Feed Panel -->
+            <section class="feed-section">
+                <!-- Feed Header/Summary bar -->
+                <div class="feed-summary-bar">
+                    <span id="results-count-text">Showing all updates</span>
+                    <div class="sort-selector">
+                        <span>Sort: </span>
+                        <button id="sort-order-btn" class="sort-btn" title="Toggle sorting order">
+                            <span id="sort-label">Newest First</span>
+                            <svg class="sort-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <polyline points="19 12 12 19 5 12"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Releases Feed Container -->
+                <div id="releases-feed" class="releases-feed">
+                    <!-- Shimmer Loader (shown during fetches) -->
+                    <div class="shimmer-loader" id="shimmer-loader">
+                        <div class="shimmer-card"></div>
+                        <div class="shimmer-card"></div>
+                        <div class="shimmer-card"></div>
+                    </div>
+
+                    <!-- Feed content dynamically loaded here -->
+                </div>
+
+                <!-- Empty State (hidden by default) -->
+                <div id="empty-state" class="empty-state" style="display: none;">
+                    <div class="empty-icon-wrapper">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="8" y1="12" x2="16" y2="12"></line>
+                        </svg>
+                    </div>
+                    <h2>No updates found</h2>
+                    <p>Try refining your search terms or selecting a different category filter.</p>
+                    <button class="btn btn-secondary" id="reset-filters-btn">Reset Filters</button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Share Modal (Overlay) -->
+    <div id="tweet-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <div class="modal-title-area">
+                    <div class="tweet-logo-wrapper">
+                        <svg viewBox="0 0 24 24" class="x-logo-svg">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2>Compose Tweet</h2>
+                        <span class="modal-subtitle">Share this BigQuery release update</span>
+                    </div>
+                </div>
+                <button class="modal-close-btn" id="modal-close-btn" aria-label="Close modal">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <!-- Style templates for quick drafting -->
+                <div class="template-selector-section">
+                    <span class="section-label">Draft Style:</span>
+                    <div class="template-options">
+                        <button class="template-chip active" data-style="standard">Standard</button>
+                        <button class="template-chip" data-style="hype">Excited</button>
+                        <button class="template-chip" data-style="minimal">Minimal</button>
+                    </div>
+                </div>
+
+                <!-- Text Area for Editing -->
+                <div class="tweet-editor-wrapper">
+                    <textarea id="tweet-textarea" rows="6" maxlength="500" placeholder="What's happening?"></textarea>
+                    
+                    <!-- Text Area Status Overlay -->
+                    <div class="editor-footer">
+                        <button id="copy-tweet-btn" class="btn-icon-only" title="Copy text to clipboard">
+                            <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                            <span id="copy-status-text">Copy</span>
+                        </button>
+                        
+                        <div class="character-counter-wrapper">
+                            <!-- Circular Progress Indicator -->
+                            <svg class="char-progress-ring" width="30" height="30">
+                                <circle class="progress-ring-bg" stroke="rgba(255,255,255,0.1)" stroke-width="2.5" fill="transparent" r="11" cx="15" cy="15"></circle>
+                                <circle id="progress-ring-value" stroke="#3b82f6" stroke-width="2.5" fill="transparent" r="11" cx="15" cy="15"></circle>
+                            </svg>
+                            <span id="char-counter">280</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Source Preview Card -->
+                <div class="source-preview-card">
+                    <div class="preview-header">
+                        <span id="modal-preview-tag" class="release-tag">Feature</span>
+                        <span id="modal-preview-date" class="preview-date">June 16, 2026</span>
+                    </div>
+                    <div id="modal-preview-text" class="preview-text">
+                        Loading preview text...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer-controls">
+                <button class="btn btn-secondary" id="modal-cancel-btn">Cancel</button>
+                <button class="btn btn-primary btn-tweet-post" id="tweet-submit-btn">
+                    <svg viewBox="0 0 24 24" class="btn-x-logo">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" fill="currentColor"></path>
+                    </svg>
+                    <span>Post to X</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast-notification" class="toast" style="display: none;">
+        <span id="toast-message">Copied to clipboard!</span>
+    </div>
+
+    <!-- Javascript Script Link -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
