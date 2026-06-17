@@ -348,6 +348,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 tweetBtn.addEventListener('click', () => openTweetModal(item));
                 actions.appendChild(tweetBtn);
+
+                // Copy button
+                const copyCardBtn = document.createElement('button');
+                copyCardBtn.className = 'btn-action btn-copy-card';
+                copyCardBtn.title = 'Copy update content to clipboard';
+                copyCardBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    <span>Copy</span>
+                `;
+                copyCardBtn.addEventListener('click', async () => {
+                    try {
+                        await navigator.clipboard.writeText(item.content_text);
+                        showToast('Update copied to clipboard');
+                    } catch (err) {
+                        console.error('Failed to copy card text: ', err);
+                        showToast('Failed to copy');
+                    }
+                });
+                actions.appendChild(copyCardBtn);
                 
                 cardHeader.appendChild(actions);
                 card.appendChild(cardHeader);
@@ -549,8 +571,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let draft = '';
         
         switch (currentTweetStyle) {
-            case 'hype':
-                draft = `🚀 New #BigQuery update! (${date})\n\n[${type}]: ${plainText}\n\nRead more details here:\n${link} #GoogleCloud #DataWarehousing`;
+            case 'highlight':
+                draft = `New #BigQuery update: ${date}\n\n[${type}]: ${plainText}\n\nRead more details here:\n${link} #GoogleCloud #DataWarehousing`;
                 break;
             case 'minimal':
                 draft = `Google BigQuery Changelog [${type}]: ${plainText} ${link}`;
@@ -678,6 +700,78 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
     
+    // -----------------------------------------------------------------
+    // Theme Switcher & Export Features
+    // -----------------------------------------------------------------
+    
+    // Theme Switcher Logic
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+    }
+    
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            const isLight = document.body.classList.toggle('light-theme');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            showToast(isLight ? 'Swapped to light mode' : 'Swapped to dark mode');
+        });
+    }
+
+    // Export to CSV Logic
+    const exportCsvBtn = document.getElementById('export-csv-btn');
+    if (exportCsvBtn) {
+        exportCsvBtn.addEventListener('click', () => {
+            const activeFilter = currentFilter;
+            const query = searchQuery ? searchQuery.toLowerCase() : '';
+            
+            // Get currently filtered releases matching layout view
+            const filtered = releases.filter(item => {
+                const matchesCategory = activeFilter === 'all' || item.type === activeFilter;
+                let matchesSearch = true;
+                if (query) {
+                    const inText = item.content_text.toLowerCase().includes(query);
+                    const inType = item.type.toLowerCase().includes(query);
+                    const inDate = item.date.toLowerCase().includes(query);
+                    matchesSearch = inText || inType || inDate;
+                }
+                return matchesCategory && matchesSearch;
+            });
+            
+            if (filtered.length === 0) {
+                showToast('No releases found to export');
+                return;
+            }
+            
+            // CSV columns header & escape formatting
+            const headers = ['Date', 'Category', 'Link', 'Update Details'];
+            const rows = filtered.map(item => [
+                item.date,
+                item.type,
+                item.link,
+                item.content_text
+            ]);
+            
+            const csvContent = [
+                headers.join(','),
+                ...rows.map(row => row.map(val => `"${(val || '').replace(/"/g, '""')}"`).join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `bigquery_releases_${activeFilter}_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showToast(`Exported ${filtered.length} updates to CSV`);
+        });
+    }
+
     // -----------------------------------------------------------------
     // App Initialization
     // -----------------------------------------------------------------

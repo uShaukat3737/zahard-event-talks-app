@@ -51,6 +51,51 @@
     --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
+body.light-theme {
+    --bg-main: #f8fafc;
+    --bg-card: #ffffff;
+    --bg-header: rgba(248, 250, 252, 0.85);
+    --bg-input: #f1f5f9;
+    --border-color: rgba(15, 23, 42, 0.08);
+    --border-hover: rgba(15, 23, 42, 0.18);
+    
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    
+    --accent-glow: rgba(59, 130, 246, 0.08);
+    
+    --tag-feat-bg: rgba(45, 212, 191, 0.12);
+    --tag-ann-bg: rgba(96, 165, 250, 0.12);
+    --tag-issue-bg: rgba(245, 158, 11, 0.12);
+    --tag-break-bg: rgba(248, 113, 113, 0.12);
+    --tag-change-bg: rgba(192, 132, 252, 0.12);
+    --tag-gen-bg: rgba(148, 163, 184, 0.12);
+    
+    --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.05);
+    --shadow-md: 0 8px 20px rgba(15, 23, 42, 0.08);
+    --shadow-lg: 0 16px 40px rgba(15, 23, 42, 0.12);
+}
+
+body:not(.light-theme) .theme-toggle-btn .moon-icon {
+    display: none !important;
+}
+body:not(.light-theme) .theme-toggle-btn .sun-icon {
+    display: block !important;
+}
+body.light-theme .theme-toggle-btn .sun-icon {
+    display: none !important;
+}
+body.light-theme .theme-toggle-btn .moon-icon {
+    display: block !important;
+}
+
+.summary-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
 /* Global resets & Base styles */
 * {
     box-sizing: border-box;

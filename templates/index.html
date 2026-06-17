@@ -51,6 +51,23 @@
                     </button>
                 </div>
                 
+                <button id="theme-toggle-btn" class="btn btn-secondary theme-toggle-btn" title="Toggle Theme">
+                    <svg class="sun-icon btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="moon-icon btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+                
                 <button id="refresh-btn" class="btn btn-primary btn-refresh" title="Refresh Release Notes">
                     <svg id="refresh-spinner" class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
@@ -122,15 +139,25 @@
                 <!-- Feed Header/Summary bar -->
                 <div class="feed-summary-bar">
                     <span id="results-count-text">Showing all updates</span>
-                    <div class="sort-selector">
-                        <span>Sort: </span>
-                        <button id="sort-order-btn" class="sort-btn" title="Toggle sorting order">
-                            <span id="sort-label">Newest First</span>
-                            <svg class="sort-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <polyline points="19 12 12 19 5 12"></polyline>
+                    <div class="summary-actions">
+                        <button id="export-csv-btn" class="btn-action" title="Export current view to CSV">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:0.875rem; height:0.875rem;">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
                             </svg>
+                            <span>Export CSV</span>
                         </button>
+                        <div class="sort-selector">
+                            <span>Sort: </span>
+                            <button id="sort-order-btn" class="sort-btn" title="Toggle sorting order">
+                                <span id="sort-label">Newest First</span>
+                                <svg class="sort-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <polyline points="19 12 12 19 5 12"></polyline>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -195,7 +222,7 @@
                     <span class="section-label">Draft Style:</span>
                     <div class="template-options">
                         <button class="template-chip active" data-style="standard">Standard</button>
-                        <button class="template-chip" data-style="hype">Excited</button>
+                        <button class="template-chip" data-style="highlight">Highlight</button>
                         <button class="template-chip" data-style="minimal">Minimal</button>
                     </div>
                 </div>
